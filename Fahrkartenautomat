@@ -1,75 +1,176 @@
+// A5.4: Fahrkarten kombinieren
+// siehe dazu Zeile 29 bis 62
+
 import java.util.Scanner;
 
-class Fahrkartenautomat {
-	public static void main(String[] args) {
+class main_fahrkartenautomat {
+	
+	//Methoden
+	static void begruesung(){
+		System.out.printf("Herzlich Wilkommen!%n%n");
+	}
+public static double fahrkartenbestellungErfassen(Scanner tastatur, double[] ticketPrices, String[] ticketNames) {
+	int anzahlTickets = 0;
+	int selectedTicket;
+	boolean correctTicketNumber, isTicketSelectionCorrect;
+	int numberOfTicketsAvailable = 4;
+	double zuZahlenderBetrag = 0;
+	//double zuZahlenderBetrag = ticketPrice * anzahlTickets;
+	//return zuZahlenderBetrag;
+	
+	// Schleifenblock fragt Ticketarten und Anzahl ab und summiert Kosten.
+	do {
+		// Ticketübersicht
+		
+//		for (int i=1; i<=numberOfTicketsAvailable; i++) {
+//			System.out.printf("(%d) %s [%.2f EUR]\n" ,  i, ticketNames[i-1], ticketPrices[i-1]);
+//		}
+//		
+		
+		for (int i=0; i<ticketNames.length; i++) {
+			System.out.printf("(%d) %s [%.2f EUR]\n" ,  i, ticketNames[i], ticketPrices[i]);
+		}
+				
+		System.out.print("(9) Bezahlen \n\n");
+		
+		// Auswahl einer Ticketart
+		do {
+			System.out.print("Ihre Wahl: ");
+			selectedTicket = tastatur.nextInt();
+			isTicketSelectionCorrect = (0<selectedTicket && selectedTicket<=numberOfTicketsAvailable || selectedTicket == 9);
+			if (!isTicketSelectionCorrect) {
+				System.out.println(" >>falsche Eingabe<<\n");
+			}
+		} while (!isTicketSelectionCorrect);
+		
+		// Anzahl der Ticketart + aufsummieren der Kosten
+		if (selectedTicket != 9)
+		{
+			anzahlTickets = 0;
+			do {
+				System.out.print("Anzahl der Tickets: ");
+				anzahlTickets = tastatur.nextInt();
+				correctTicketNumber = (1 <= anzahlTickets && anzahlTickets <= 10);
+				if (!correctTicketNumber)
+					System.out.println(">> Wählen Sie bitte eine Anzahl von 1 bis 10 Tickets aus. <<\n");
+			} while (!correctTicketNumber);
+			zuZahlenderBetrag += anzahlTickets * ticketPrices[selectedTicket-1];
+			System.out.printf("\nZwischensumme: %.2f €\n\n" , zuZahlenderBetrag);
+		}	
+		
+	} while (selectedTicket != 9);
+	return zuZahlenderBetrag;
+	}
+public static double zuZahlenderBetrag(Scanner tastatur, double zuZahlenderBetrag) {
+	double eingezahlterGesamtbetrag;
+	double nochZuZahlen;
+	double eingeworfeneMuenze;
+	
+	// 2 - Geldeinwurf
+	eingezahlterGesamtbetrag = 0.0;
+	nochZuZahlen = 0.0;
+	double[] gueltigeBetraege = {0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20};
+	boolean betragStimmt;
+	final double diff = -0.001;
+	
+	while (eingezahlterGesamtbetrag < zuZahlenderBetrag) {
+		betragStimmt = false;
+		nochZuZahlen = zuZahlenderBetrag - eingezahlterGesamtbetrag;
+		System.out.printf("\nNoch zu zahlen: %.2f Euro\nEingabe (mind. 5 Cent, höchstens 20 Euro): ", nochZuZahlen);
+		eingeworfeneMuenze = tastatur.nextDouble();
+		
+		for (double gueltigerBetrag : gueltigeBetraege) {
+			if (eingeworfeneMuenze - gueltigerBetrag >= diff) {
+				betragStimmt = true;
+				eingezahlterGesamtbetrag = eingezahlterGesamtbetrag + eingeworfeneMuenze;					
+				break;
+			}
+		}
+		if (!betragStimmt) {
+			System.out.println(">> Kein gültiges Zahlungsmittel");
+		}
+	}
+	return eingezahlterGesamtbetrag;
+	
+	
+}
+public static void fahrkartenAusgeben() {
+	// 3 - Fahrscheinausgabe
+	System.out.println("\nFahrschein wird ausgegeben");
+	for (int i = 0; i < 8; i++) {
+		System.out.print("=");
+		try {
+			Thread.sleep(200);
+		} 
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+}
+public static double rueckgeldAusgeben(Scanner tastatur, double rueckgabebetrag) {
+	double zuZahlenderBetrag = 0;
+	//double rueckgabebetrag;
+	double eingezahlterGesamtbetrag = 0;
+	final double diff = -0.001;	//fuer den Vergleich von doubles bei der Ausgabe
+	
+	
+	// 4 - Rückgeldberechnung und -ausgabe
+	rueckgabebetrag = eingezahlterGesamtbetrag - zuZahlenderBetrag;
+	if (rueckgabebetrag > 0.0) {
+		System.out.printf("\nDer Rückgabebetrag in Höhe von %.2f Euro\nwird in folgenden Münzen ausgezahlt:\n", rueckgabebetrag);
+		
+		
+		while (rueckgabebetrag - 2.0 >= diff) { // 2-Euro-Münzen
+			System.out.println("2 Euro");
+			rueckgabebetrag = rueckgabebetrag - 2.0;
+		}
+		while (rueckgabebetrag - 1.0 >= diff) { // 1-Euro-Münzen
+			System.out.println("1 Euro");
+			rueckgabebetrag = rueckgabebetrag - 1.0;
+		}
+		while (rueckgabebetrag - 0.5 >= diff) { // 50-Cent-Münzen
+			System.out.println("50 Cent");
+			rueckgabebetrag = rueckgabebetrag - 0.5;
+		}
+		while (rueckgabebetrag - 0.2 >= diff) { // 20-Cent-Münzen
+			System.out.println("20 Cent");
+			rueckgabebetrag = rueckgabebetrag - 0.2;
+		}
+		while (rueckgabebetrag - 0.1 >= diff) { // 10-Cent-Münzen
+			System.out.println("10 Cent");
+			rueckgabebetrag = rueckgabebetrag - 0.1;
+		}
+		while (rueckgabebetrag - 0.05 >= diff) { // 5-Cent-Münzen
+			System.out.println("5 Cent");
+			rueckgabebetrag = rueckgabebetrag - 0.05;
+		}
+	}
+return rueckgabebetrag;
+}
 
+	public static void main(String[] args) {
+		double zuZahlenderBetrag = 0;
+		double[] ticketPrices = {3.00, 3.50, 3.80, 2.00, 8.60, 9.20, 10.00, 9.40, 12.60, 13.80, 25.50, 26.00, 26.50};	
+		String[] ticketNames = {"Kurzstrecke AB", "Einzelfahrschein BC", "Einzelfahrschein ABC", "Kurzstrecke AB", "Tageskarte AB", "Tageskarte BC", "Tageskarte ABC", "4-Fahrten-Karte AB", "4-Fahrten-Karte BC", "4-Fahrten-Karte ABC", "Kleingruppen-Tageskarte AB", "Kleingruppen-Tageskarte BC", "Kleingruppen-Tageskarte ABC"};
+		double eingezahlterGesamtbetrag;
+		double rueckgabebetrag = 0;
+		
 		Scanner tastatur = new Scanner(System.in);
 
-		double zuZahlenderBetrag;
-		double eingezahlterGesamtbetrag;
-		double eingeworfeneMuenze;
-		double rueckgabebetrag;
-		double nochZuZahlen;
-
-		// 1
-		System.out.print("Zu zahlender Betrag (Euro): ");
-		zuZahlenderBetrag = tastatur.nextDouble();
-
-		// 2
-		eingezahlterGesamtbetrag = 0.0;
-		nochZuZahlen = 0.0;
-		while (eingezahlterGesamtbetrag < zuZahlenderBetrag) {
-			nochZuZahlen = zuZahlenderBetrag - eingezahlterGesamtbetrag;
-			System.out.println("Noch zu zahlen: " + nochZuZahlen);
-			System.out.print("Eingabe (mind. 5 Cent, höchstens 2 Euro): ");
-			eingeworfeneMuenze = tastatur.nextDouble();
-			eingezahlterGesamtbetrag = eingezahlterGesamtbetrag + eingeworfeneMuenze;
-		}
 		
-		// 3
-		System.out.println("\nFahrschein wird ausgegeben");
-		for (int i = 0; i < 8; i++) {
-			System.out.print("=");
-			try {
-				Thread.sleep(200);
-			} 
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		System.out.println("\n\n");
 		
-		// 4
-		rueckgabebetrag = eingezahlterGesamtbetrag - zuZahlenderBetrag;
-		if (rueckgabebetrag > 0.0) {
-			System.out.println("Der Rückgabebetrag in Höhe von " + rueckgabebetrag + " Euro");
-			System.out.println("wird in folgenden Münzen ausgezahlt:");
 
-			while (rueckgabebetrag >= 2.0) { // 2-Euro-Münzen
-				System.out.println("2 Euro");
-				rueckgabebetrag = rueckgabebetrag - 2.0;
-			}
-			while (rueckgabebetrag >= 1.0) { // 1-Euro-Münzen
-				System.out.println("1 Euro");
-				rueckgabebetrag = rueckgabebetrag - 1.0;
-			}
-			while (rueckgabebetrag >= 0.5) { // 50-Cent-Münzen
-				System.out.println("50 Cent");
-				rueckgabebetrag = rueckgabebetrag - 0.5;
-			}
-			while (rueckgabebetrag >= 0.2) { // 20-Cent-Münzen
-				System.out.println("20 Cent");
-				rueckgabebetrag = rueckgabebetrag - 0.2;
-			}
-			while (rueckgabebetrag >= 0.1) { // 10-Cent-Münzen
-				System.out.println("10 Cent");
-				rueckgabebetrag = rueckgabebetrag - 0.1;
-			}
-			while (rueckgabebetrag >= 0.05) { // 5-Cent-Münzen
-				System.out.println("5 Cent");
-				rueckgabebetrag = rueckgabebetrag - 0.05;
-			}
-		}
+		// 1 - Fahrkarten bestellen
+		System.out.println("Fahrkartenbestellvorgang:");
+		System.out.println("=========================");
+		
+		
+		begruesung();
+		zuZahlenderBetrag = fahrkartenbestellungErfassen(tastatur, ticketPrices, ticketNames);
+		eingezahlterGesamtbetrag = zuZahlenderBetrag(tastatur, zuZahlenderBetrag);
+		fahrkartenAusgeben();
+		rueckgabebetrag = rueckgeldAusgeben(tastatur, rueckgabebetrag);
+
 
 		System.out.println("\nVergessen Sie nicht, den Fahrschein\n" + "vor Fahrtantritt entwerten zu lassen!\n"
 				+ "Wir wünschen Ihnen eine gute Fahrt.");
@@ -77,3 +178,4 @@ class Fahrkartenautomat {
 		tastatur.close();
 	}
 }
+
